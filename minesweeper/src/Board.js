@@ -54,51 +54,93 @@ export const Board = props => {
   }
   */
 
-  const showCell = (mini, board) => {
-    console.log(board);
+  /*const showCell = (mini, board) => {
     const tempBoard = board;
     for (let row = 0; row < mini.length; row++) {
       for (let col = 0; col < mini[row].length; col++) {
-        const {x, y} = mini[row][col];
+        const {x, y, value} = mini[row][col];
         if (tempBoard[y][x].status === 'hide') {
           tempBoard[y][x].status = 'show';
+          if (value === 0) {
+            getMini(x, y, board);
+          }
         }
       }
     }
     
     return tempBoard;
   }
-
   
-        /*if (fillBoard[i][j].status === 'hide') {
-          fillBoard[i][j].status = 'show';
-        }
-        if (board[i][j] >= 0) {
-          console.log('hit');
-          fillBoard = fillBlanks(j, i, fillBoard);
-        }*/
-
-  const fillBlanks = (x, y, board) => {
-    let fillBoard = board;
-    let miniBoard = [];
+  const getMini = (x, y, board) => {
+    const miniBoard = [];
     for (let i = y - 1; i <= y + 1; i++) {
-      let miniRow = []
+      const miniRow = [];
       for (let j = x - 1; j <= x + 1; j ++) {
         if (i < 0 || i > rows -1  || j < 0 || j > cols - 1 || board[i][j].value === 'X') {
           continue;
         }
-        miniRow.push({
-          x: j,
-          y: i,
-        })
+        miniRow.push({x: j, y: i, value: board[i][j].value});
       }
       miniBoard.push(miniRow);
     }
 
-    showCell(miniBoard, board);
-    
-    return fillBoard;
+    return miniBoard;
   }
+
+  const fillBlanks = (x, y, board) => {
+    const miniBoard = getMini(x, y, board);
+    let fillBoard = board;
+    fillBoard = showCell(miniBoard, board);
+    return fillBoard;
+  }*/
+
+  const showCell = (board, list) => {
+    console.log('showCell');
+    const tempBoard = board;
+    for (let item in list) {
+      tempBoard[item.y][item.x].status = 'show';
+    }
+    return tempBoard;
+  }
+
+  const getSurroundings = (coor, board, checked, unchecked = []) => {
+    const {x, y} = coor;
+    const tempChecked = checked;
+    const tempUnchecked = unchecked;
+    tempChecked.push(coor)
+    for (let i = y - 1; i <= y + 1; i++) {
+      for (let j = x - 1; j <= x + 1; j ++) {
+        if (i < 0 || i > rows - 1 || j < 0 || j > cols - 1) {
+          continue;
+        }
+        const obj = {x: j, y: i};
+        if (!tempChecked.includes(obj) && !tempUnchecked.includes(obj)) {
+          if (board[i][j].value > 0) {
+            tempChecked.push(obj);
+          } else {
+            tempUnchecked.push(obj);
+          }
+        }
+        console.log('checked:', tempChecked, 'unchecked:', tempUnchecked);
+      }
+    }
+
+    if (tempUnchecked.length === 0 || tempUnchecked.length > rows * cols) {
+      return tempChecked;
+    } else {
+      const newCoor = tempUnchecked.shift();
+      console.log(newCoor);
+      getSurroundings(newCoor, board, tempChecked, tempUnchecked);
+    }
+  }
+
+  const getList = (x, y , board) => {
+    let coordinates = [];
+    coordinates = getSurroundings({x, y,}, board, coordinates);
+    
+    return showCell(board, coordinates);
+  }
+  
 
   const myTurn = (x, y) => {
     let tempBoard = currentBoard;
@@ -110,7 +152,7 @@ export const Board = props => {
     } else if (currentBoard[y][x].value > 0) {
       tempBoard[y][x].status = 'show';
     } else if (currentBoard[y][x].value === 0) {
-      tempBoard = fillBlanks(x, y, currentBoard);
+      tempBoard = getList(x, y, currentBoard);
     }
     updateBoard(tempBoard);
     updateTurns(turns + 1);
