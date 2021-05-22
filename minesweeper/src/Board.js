@@ -5,16 +5,28 @@ export const Board = props => {
     rows,
     cols, 
     bombs,
-    bombsFound,
-    gameOver,
     board,
   } = props;
 
   const [renderGame, shouldRenderGame] = useState(false);
+  const [gameOver, updateGameOver] = useState(false);
+  const [bombed, updateBombed] = useState(false);
+  const [bombsFound, updateBombs] = useState(0);
+  const [currentBoard, updateBoard] = useState(board);
+  const [turns, updateTurns] = useState(0);
 
   useEffect(() => {
     shouldRenderGame(rows > 0 && cols > 0 && bombs > 0);
-  }, [rows, cols, bombs])
+    updateGameOver(false);
+    updateBombed(false);
+    updateBombs(0);
+    updateTurns(0);
+    updateBoard(board);
+  }, [rows, cols, bombs]);
+
+  useEffect(() => {
+    updateBoard(currentBoard);
+  }, [turns]);
 
   const xValues = [''];
   const yValues = [];
@@ -27,22 +39,117 @@ export const Board = props => {
     yValues.push(y);
   }
 
+  /*
+  setSurrounding(rows, cols, x, y, board) {
+    let updateBoard = board;
+    for (let i = y - 1; i <= y + 1; i++) {
+      for (let j = x - 1; j <= x + 1; j ++){
+        if (i < 0 || i > rows -1  || j < 0 || j > cols - 1 || board[i][j].value === 'X') {
+          continue;
+        } 
+        updateBoard[i][j].value++;
+      }
+    }
+    return updateBoard;
+  }
+  */
+
+  const showCell = (mini, board) => {
+    console.log(board);
+    const tempBoard = board;
+    for (let row = 0; row < mini.length; row++) {
+      for (let col = 0; col < mini[row].length; col++) {
+        const {x, y} = mini[row][col];
+        if (tempBoard[y][x].status === 'hide') {
+          tempBoard[y][x].status = 'show';
+        }
+      }
+    }
+    
+    return tempBoard;
+  }
+
+  
+        /*if (fillBoard[i][j].status === 'hide') {
+          fillBoard[i][j].status = 'show';
+        }
+        if (board[i][j] >= 0) {
+          console.log('hit');
+          fillBoard = fillBlanks(j, i, fillBoard);
+        }*/
+
+  const fillBlanks = (x, y, board) => {
+    let fillBoard = board;
+    let miniBoard = [];
+    for (let i = y - 1; i <= y + 1; i++) {
+      let miniRow = []
+      for (let j = x - 1; j <= x + 1; j ++) {
+        if (i < 0 || i > rows -1  || j < 0 || j > cols - 1 || board[i][j].value === 'X') {
+          continue;
+        }
+        miniRow.push({
+          x: j,
+          y: i,
+        })
+      }
+      miniBoard.push(miniRow);
+    }
+
+    showCell(miniBoard, board);
+    
+    return fillBoard;
+  }
+
+  const myTurn = (x, y) => {
+    let tempBoard = currentBoard;
+    if(currentBoard[y][x].value === 'X') {
+      tempBoard[y][x].status = 'bomb';
+      updateBombs(bombsFound + 1);
+      updateBombed(true);
+      updateGameOver(true);
+    } else if (currentBoard[y][x].value > 0) {
+      tempBoard[y][x].status = 'show';
+    } else if (currentBoard[y][x].value === 0) {
+      tempBoard = fillBlanks(x, y, currentBoard);
+    }
+    updateBoard(tempBoard);
+    updateTurns(turns + 1);
+  }
+
 
   return (
     <div>
+      {gameOver && bombed && 
+        <h3>
+          GAME OVER! YOU LOSE ^^
+        </h3>
+      }
+      {gameOver && !bombed && 
+        <h3>
+          GAME OVER! YOU WIN ^^
+        </h3>
+      }
       {!renderGame && <p> press start game! </p>}
       {renderGame && 
-        <table>
-          <tr>{xValues.map(x => (<th>{x}</th>))}</tr>
-          {yValues.map((y) => (
-            <tr>
-              <td>{y}</td>
-              {board[y].map((row) => (
-                <td><button>{row}</button></td>
-              ))}
-            </tr>
-          ))}
-        </table>
+        <div>
+          <h3>
+            Current Number of Turns: {turns}
+          </h3>
+          <h3>
+            Found {bombsFound} out of {bombs}
+          </h3>
+          <table>
+            <tr>{xValues.map(x => (<th>{x}</th>))}</tr>
+            {yValues.map((y) => (
+              <tr>
+                <td>{y}</td>
+                {board[y].map((row, index) => (
+                  <td className={`${row.status}`}><button onClick={() => myTurn(index, y)} disabled={gameOver || row.status === 'show'}>{row.value}</button></td>
+                ))}
+              </tr>
+            ))}
+          </table>
+        </div>
       }
     </div>
   );

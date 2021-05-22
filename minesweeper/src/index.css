@@ -10,9 +10,18 @@ code, button {
   font-family: 'Courier New', Courier, monospace;
 }
 
-table, td {
-  margin: auto;
-  width: 50%;
+.show {
+  background-color: green;
+}
+
+.hide {
+}
+
+.bomb {
+  background-color: red;
+}
+
+table, th, td {
   border: 1px solid black;
   padding: 5px;
   text-align: center;

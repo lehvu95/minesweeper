@@ -9,8 +9,6 @@ export class App extends Component {
       rows: 0,
       cols: 0, 
       bombs: 0,
-      bombsFound: 0,
-      gameOver: false,
       board: [],
     }
   }
@@ -18,12 +16,11 @@ export class App extends Component {
   setSurrounding(rows, cols, x, y, board) {
     let updateBoard = board;
     for (let i = y - 1; i <= y + 1; i++) {
-      for (let j = x - 1; j <= x + 1; j ++){
-        if (i < 0 || i > rows -1  || j < 0 || j > cols - 1 || board[i][j] === 'X') {
-          console.log('skip')
+      for (let j = x - 1; j <= x + 1; j ++) {
+        if (i < 0 || i > rows -1  || j < 0 || j > cols - 1 || board[i][j].value === 'X') {
           continue;
-        } 
-        updateBoard[i][j]++;
+        }
+        updateBoard[i][j].value++;
       }
     }
     return updateBoard;
@@ -34,7 +31,7 @@ export class App extends Component {
     for (let y = 0; y < cols; y++) {
       let row = [];
       for (let x = 0; x < rows; x++) {
-        row.push(0);
+        row.push({value: 0, status: 'hide'});
       }
       board.push(row);
     }
@@ -43,9 +40,9 @@ export class App extends Component {
     while (bombCount < bombs) {
       let x = Math.floor(Math.random() * cols);
       let y = Math.floor(Math.random() * rows);
-      if (board[y][x] > -1) {
+      if (board[y][x].value > -1) {
         // mark bombs as X or -1? 
-        board[y][x] = 'X';
+        board[y][x] = {value: 'X', status: 'hide'};
         board = this.setSurrounding(rows, cols, x, y, board);
         bombCount++;
       }
@@ -69,8 +66,6 @@ export class App extends Component {
       rows: 0,
       cols: 0, 
       bombs: 0,
-      bombsFound: 0,
-      gameOver: false,
       board: [],
     });
   }
@@ -82,7 +77,7 @@ export class App extends Component {
         <h1>
           MINESWEEPER
         </h1>
-      <Board rows={rows} cols={cols} bombs={bombs} bombsFound={bombsFound} gameOver={gameOver} board={board} />
+      <Board rows={rows} cols={cols} bombs={bombs} board={board}/>
       <button onClick={() => this.startGame()}>Start Game</button>
       <button onClick={() => this.endGame()}>End Game</button>
       </body>
