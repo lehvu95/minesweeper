@@ -6,19 +6,26 @@ body {
 }
 
 code, button {
+  font-weight: bold;
   text-align: center;
   font-family: 'Courier New', Courier, monospace;
+}
+
+button:disabled {
+  color: black;
+  font-weight: bold;
 }
 
 .show {
   background-color: green;
 }
 
-.hide {
-}
-
 .bomb {
   background-color: red;
+}
+
+.flag {
+  background-color: blue;
 }
 
 table, th, td {

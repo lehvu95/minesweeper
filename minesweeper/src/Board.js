@@ -40,8 +40,6 @@ export const Board = props => {
   }
 
   const showCell = (board, list) => {
-    console.log('showCell');
-    console.log(list);
     const tempBoard = board;
     for (let index in list) {
       const coor = list[index];
@@ -71,18 +69,15 @@ export const Board = props => {
           } else {
             tempUnchecked.push(obj);
           }
-          console.log(tempChecked.length, tempUnchecked.length)
         }
       }
     }
 
     if (tempUnchecked.length === 0) {
-      console.log(tempChecked);
       return tempChecked;
     } else {
       const newCoor = tempUnchecked[0];
       tempUnchecked.shift();
-      console.log('newCoor:', newCoor);
       return getSurroundings(newCoor, board, tempChecked, tempUnchecked);
     }
   }
@@ -90,14 +85,10 @@ export const Board = props => {
   const getList = (x, y , board) => {
     const start = {x, y};
     const coordinates = getSurroundings(start, board);
-    console.log('coordinates:', coordinates)
-    
     return showCell(board, coordinates);
   }
   
-
   const myTurn = (x, y) => {
-    console.log('i clicked');
     let tempBoard = currentBoard;
     if(currentBoard[y][x].value === 'X') {
       tempBoard[y][x].status = 'bomb';
@@ -111,6 +102,19 @@ export const Board = props => {
     }
     updateBoard(tempBoard);
     updateTurns(turns + 1);
+  }
+
+  const markCell = (x, y) => {
+    let tempBoard = currentBoard;
+    if (tempBoard[y][x].status === 'hide') {
+      tempBoard[y][x].status = 'flag';
+      updateBombs(bombsFound + 1);
+    } else {
+      tempBoard[y][x].status = 'hide';
+      updateBombs(bombsFound - 1);
+    }
+    updateBoard(tempBoard);
+
   }
 
 
@@ -141,7 +145,7 @@ export const Board = props => {
               <tr>
                 <td>{y}</td>
                 {board[y].map((row, index) => (
-                  <td className={`${row.status}`}><button onClick={() => myTurn(index, y)} disabled={gameOver || row.status === 'show'}>{row.value}</button></td>
+                  <td className={`${row.status}`}><button onClick={() => myTurn(index, y)} onContextMenu={() => markCell(index, y)} disabled={gameOver || row.status === 'show'}>{row.status === 'hide' ? '?' : row.value}</button></td>
                 ))}
               </tr>
             ))}
