@@ -51,16 +51,14 @@ export const Board = props => {
   }
 
   const arrayChecker = (arr, obj) => {
-    return arr.some((item) => item == obj);
+    return arr.some((item) => JSON.stringify(item) === JSON.stringify(obj));
   }
 
   const getSurroundings = (coor, board, checked, unchecked) => {
-    console.log('initial:',coor, checked, unchecked);
     const {x, y} = coor;
     const tempChecked = checked ? checked : [];
     const tempUnchecked = unchecked ? unchecked : [];
     tempChecked.push(coor);
-    console.log(tempChecked, tempUnchecked);
     for (let i = y - 1; i <= y + 1; i++) {
       for (let j = x - 1; j <= x + 1; j ++) {
         if (i < 0 || i > rows - 1 || j < 0 || j > cols - 1) {
@@ -73,26 +71,26 @@ export const Board = props => {
           } else {
             tempUnchecked.push(obj);
           }
+          console.log(tempChecked.length, tempUnchecked.length)
         }
-        console.log('checked:', tempChecked, 'unchecked:', tempUnchecked);
       }
     }
 
-    if (tempUnchecked.length === 0 || tempUnchecked.length > rows * cols || tempChecked.length > rows * cols) {
+    if (tempUnchecked.length === 0) {
+      console.log(tempChecked);
       return tempChecked;
     } else {
       const newCoor = tempUnchecked[0];
       tempUnchecked.shift();
       console.log('newCoor:', newCoor);
-      getSurroundings(newCoor, board, tempChecked, tempUnchecked);
+      return getSurroundings(newCoor, board, tempChecked, tempUnchecked);
     }
-    
-    return tempChecked;
   }
 
   const getList = (x, y , board) => {
     const start = {x, y};
-    let coordinates = getSurroundings(start, board);
+    const coordinates = getSurroundings(start, board);
+    console.log('coordinates:', coordinates)
     
     return showCell(board, coordinates);
   }
