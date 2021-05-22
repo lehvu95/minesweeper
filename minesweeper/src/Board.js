@@ -41,25 +41,33 @@ export const Board = props => {
 
   const showCell = (board, list) => {
     console.log('showCell');
+    console.log(list);
     const tempBoard = board;
-    for (let item in list) {
-      tempBoard[item.y][item.x].status = 'show';
+    for (let index in list) {
+      const coor = list[index];
+      tempBoard[coor.y][coor.x].status = 'show';
     }
     return tempBoard;
   }
 
-  const getSurroundings = (coor, board, checked, unchecked = []) => {
+  const arrayChecker = (arr, obj) => {
+    return arr.some((item) => item == obj);
+  }
+
+  const getSurroundings = (coor, board, checked, unchecked) => {
+    console.log('initial:',coor, checked, unchecked);
     const {x, y} = coor;
-    const tempChecked = checked;
-    const tempUnchecked = unchecked;
-    tempChecked.push(coor)
+    const tempChecked = checked ? checked : [];
+    const tempUnchecked = unchecked ? unchecked : [];
+    tempChecked.push(coor);
+    console.log(tempChecked, tempUnchecked);
     for (let i = y - 1; i <= y + 1; i++) {
       for (let j = x - 1; j <= x + 1; j ++) {
         if (i < 0 || i > rows - 1 || j < 0 || j > cols - 1) {
           continue;
         }
         const obj = {x: j, y: i};
-        if (!tempChecked.includes(obj) && !tempUnchecked.includes(obj)) {
+        if (!arrayChecker(tempChecked, obj) && !arrayChecker(tempUnchecked, obj)) {
           if (board[i][j].value > 0) {
             tempChecked.push(obj);
           } else {
@@ -70,24 +78,28 @@ export const Board = props => {
       }
     }
 
-    if (tempUnchecked.length === 0 || tempUnchecked.length > rows * cols) {
+    if (tempUnchecked.length === 0 || tempUnchecked.length > rows * cols || tempChecked.length > rows * cols) {
       return tempChecked;
     } else {
-      const newCoor = tempUnchecked.shift();
-      console.log(newCoor);
+      const newCoor = tempUnchecked[0];
+      tempUnchecked.shift();
+      console.log('newCoor:', newCoor);
       getSurroundings(newCoor, board, tempChecked, tempUnchecked);
     }
+    
+    return tempChecked;
   }
 
   const getList = (x, y , board) => {
-    let coordinates = [];
-    coordinates = getSurroundings({x, y,}, board, coordinates);
+    const start = {x, y};
+    let coordinates = getSurroundings(start, board);
     
     return showCell(board, coordinates);
   }
   
 
   const myTurn = (x, y) => {
+    console.log('i clicked');
     let tempBoard = currentBoard;
     if(currentBoard[y][x].value === 'X') {
       tempBoard[y][x].status = 'bomb';
