@@ -6,12 +6,14 @@ export const Board = props => {
     cols, 
     bombs,
     board,
+    bombLocations,
   } = props;
 
   const [renderGame, shouldRenderGame] = useState(false);
   const [gameOver, updateGameOver] = useState(false);
   const [bombed, updateBombed] = useState(false);
   const [bombsFound, updateBombs] = useState(0);
+  const [flags, updateFlags] = useState([]);
   const [currentBoard, updateBoard] = useState(board);
   const [turns, updateTurns] = useState(0);
 
@@ -22,11 +24,8 @@ export const Board = props => {
     updateBombs(0);
     updateTurns(0);
     updateBoard(board);
+    updateFlags([]);
   }, [rows, cols, bombs]);
-
-  useEffect(() => {
-    updateBoard(currentBoard);
-  }, [turns]);
 
   const xValues = [''];
   const yValues = [];
@@ -104,17 +103,27 @@ export const Board = props => {
     updateTurns(turns + 1);
   }
 
-  const markCell = (x, y) => {
+  const flagCell = (x, y) => {
     let tempBoard = currentBoard;
+    const coor = {x, y};
     if (tempBoard[y][x].status === 'hide') {
       tempBoard[y][x].status = 'flag';
       updateBombs(bombsFound + 1);
+      if (arrayChecker(bombLocations, coor)) {
+        flags.push(coor);
+        if (bombs - flags.length === 0) {
+          updateGameOver(true);
+        }
+      }
     } else {
       tempBoard[y][x].status = 'hide';
       updateBombs(bombsFound - 1);
+      if (arrayChecker(bombLocations, coor)) {
+        const index = flags.findIndex((mark) => JSON.stringify(mark) === JSON.stringify(coor));
+        flags.splice(index, 1);
+      }
     }
     updateBoard(tempBoard);
-
   }
 
 
@@ -145,7 +154,7 @@ export const Board = props => {
               <tr>
                 <td>{y}</td>
                 {board[y].map((row, index) => (
-                  <td className={`${row.status}`}><button onClick={() => myTurn(index, y)} onContextMenu={() => markCell(index, y)} disabled={gameOver || row.status === 'show'}>{row.status === 'hide' ? '?' : row.value}</button></td>
+                  <td className={`${row.status}`}><button onClick={() => myTurn(index, y)} onContextMenu={() => flagCell(index, y)} disabled={gameOver || row.status === 'show'}>{row.status !== 'show' ? row.value : row.value}</button></td>
                 ))}
               </tr>
             ))}

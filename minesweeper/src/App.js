@@ -10,6 +10,7 @@ export class App extends Component {
       cols: 0, 
       bombs: 0,
       board: [],
+      bombLocations: [],
     }
   }
 
@@ -37,16 +38,18 @@ export class App extends Component {
     }
 
     let bombCount = 0;
+    const locations = [];
     while (bombCount < bombs) {
       let x = Math.floor(Math.random() * cols);
       let y = Math.floor(Math.random() * rows);
       if (board[y][x].value > -1) {
-        // mark bombs as X or -1? 
+        locations.push({x, y});
         board[y][x] = {value: 'X', status: 'hide'};
         board = this.setSurrounding(rows, cols, x, y, board);
         bombCount++;
       }
     }
+    this.setState({bombLocations: locations});
 
     return board;
   }
@@ -67,17 +70,18 @@ export class App extends Component {
       cols: 0, 
       bombs: 0,
       board: [],
+      bombLocations: [],
     });
   }
 
   render() {
-    const {rows, cols, bombs, bombsFound, gameOver, board} = this.state;
+    const {rows, cols, bombs, board, bombLocations} = this.state;
     return (
       <body>
         <h1>
           MINESWEEPER
         </h1>
-      <Board rows={rows} cols={cols} bombs={bombs} board={board}/>
+      <Board rows={rows} cols={cols} bombs={bombs} board={board} bombLocations={bombLocations} />
       <button onClick={() => this.startGame()}>Start Game</button>
       <button onClick={() => this.endGame()}>End Game</button>
       </body>
