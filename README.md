@@ -22,3 +22,12 @@ board design
   board: [[],...],
   gameOver: bool,
 }
+
+
+# FUTURE UPDATES could include
+- allow user to choose # rows, columns, and bombs
+- include error handling for user input
+- dialog confirm box for activating a flagged cell (you flagged this cell as a bomb, are you sure you want to activate it?)
+- update UI and formatting
+- improve messaging
+- remove context menu when right click for flag
