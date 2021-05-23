@@ -154,7 +154,7 @@ export const Board = props => {
               <tr>
                 <td>{y}</td>
                 {board[y].map((row, index) => (
-                  <td className={`${row.status}`}><button onClick={() => myTurn(index, y)} onContextMenu={() => flagCell(index, y)} disabled={gameOver || row.status === 'show'}>{row.status !== 'show' ? row.value : row.value}</button></td>
+                  <td className={`${row.status}`}><button onClick={() => myTurn(index, y)} onContextMenu={() => flagCell(index, y)} disabled={gameOver || row.status === 'show'}>{row.status !== 'show' ? '?' : row.value}</button></td>
                 ))}
               </tr>
             ))}
