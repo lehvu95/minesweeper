@@ -31,3 +31,4 @@ board design
 - update UI and formatting
 - improve messaging
 - remove context menu when right click for flag
+- implement redux to keep state upon page refresh
